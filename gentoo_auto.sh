@@ -70,35 +70,35 @@ mkdir -p /mnt/gentoo/etc/local.d
 # EOF
 # chmod 755 /mnt/gentoo/etc/local.d/killall_nash-hotplug.start
 
-echo "/etc/local.d/public-keys.start"
-cat <<'EOF'>/mnt/gentoo/etc/local.d/public-keys.start
-# /etc/local.d/public-keys.start
+# echo "/etc/local.d/public-keys.start"
+# cat <<'EOF'>/mnt/gentoo/etc/local.d/public-keys.start
+# # /etc/local.d/public-keys.start
 
-[ ! -e /home/ec2-user ] && cp -r /etc/skel /home/ec2-user && chown -R ec2-user /home/ec2-user && chgrp -R ec2-user /home/ec2-user
-if [ ! -d /home/ec2-user/.ssh ] ; then
-mkdir -p /home/ec2-user/.ssh
-chmod 700 /home/ec2-user/.ssh
-chown ec2-user /home/ec2-user/.ssh
-chgrp ec2-user /home/ec2-user/.ssh
-fi
-curl http://169.254.169.254/latest/meta-data/public-keys/0/openssh-key > /tmp/my-key
-if [ $? -eq 0 ] ; then
-cat /tmp/my-key >> /home/ec2-user/.ssh/authorized_keys
-chmod 600 /home/ec2-user/.ssh/authorized_keys
-chown ec2-user /home/ec2-user/.ssh/authorized_keys
-chgrp ec2-user /home/ec2-user/.ssh/authorized_keys
-rm /tmp/my-key
-fi
-EOF
-chmod 755 /mnt/gentoo/etc/local.d/public-keys.start
+# [ ! -e /home/ec2-user ] && cp -r /etc/skel /home/ec2-user && chown -R ec2-user /home/ec2-user && chgrp -R ec2-user /home/ec2-user
+# if [ ! -d /home/ec2-user/.ssh ] ; then
+# mkdir -p /home/ec2-user/.ssh
+# chmod 700 /home/ec2-user/.ssh
+# chown ec2-user /home/ec2-user/.ssh
+# chgrp ec2-user /home/ec2-user/.ssh
+# fi
+# curl http://169.254.169.254/latest/meta-data/public-keys/0/openssh-key > /tmp/my-key
+# if [ $? -eq 0 ] ; then
+# cat /tmp/my-key >> /home/ec2-user/.ssh/authorized_keys
+# chmod 600 /home/ec2-user/.ssh/authorized_keys
+# chown ec2-user /home/ec2-user/.ssh/authorized_keys
+# chgrp ec2-user /home/ec2-user/.ssh/authorized_keys
+# rm /tmp/my-key
+# fi
+# EOF
+# chmod 755 /mnt/gentoo/etc/local.d/public-keys.start
 
-echo "/etc/local.d/public-keys.stop"
-cat <<'EOF'>/mnt/gentoo/etc/local.d/public-keys.stop
-# /etc/local.d/public-keys.stop
+# echo "/etc/local.d/public-keys.stop"
+# cat <<'EOF'>/mnt/gentoo/etc/local.d/public-keys.stop
+# # /etc/local.d/public-keys.stop
 
-rm -f /home/ec2-user/.ssh/authorized_keys
-EOF
-chmod 755 /mnt/gentoo/etc/local.d/public-keys.stop
+# rm -f /home/ec2-user/.ssh/authorized_keys
+# EOF
+# chmod 755 /mnt/gentoo/etc/local.d/public-keys.stop
 
 mkdir -p /mnt/gentoo/etc/portage
 
