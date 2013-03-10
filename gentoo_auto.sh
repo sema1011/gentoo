@@ -44,22 +44,30 @@ echo "Setup files"
 
 mkdir -p /mnt/gentoo/boot/grub
 echo "/boot/grub/menu.lst"
-cat <<'EOF'>/mnt/gentoo/boot/grub/menu.lst
+cat <<'EOF'>/mnt/gentoo/boot/grub/menu.lst.tmp
 default 0
 timeout 3
 title EC2
 root (hd0)
-kernel /boot/bzImage root=/dev/$VIRTUAL_ROOT_DEVICE rootfstype=ext4
+kernel /boot/bzImage root=/dev/$VRD rootfstype=ext4
 EOF
+sed -e "s/$VRD/$VIRTUAL_ROOT_DEVICE/" /mnt/gentoo/boot/grub/menu.lst.tmp > /mnt/gentoo/boot/grub/menu.lst
+echo "output of menu.lst"
+cat /mnt/gentoo/boot/grub/menu.lst
+sleep 10
 
 echo "/etc/fstab"
-cat <<'EOF'>/mnt/gentoo/etc/fstab
-/dev/$VIRTUAL_ROOT_DEVICE / ext4 defaults 1 1
+cat <<'EOF'>/mnt/gentoo/etc/fstab.tmp
+/dev/$VRD / ext4 defaults 1 1
 none /dev/pts devpts gid=5,mode=620 0 0
 none /dev/shm tmpfs defaults 0 0
 none /proc proc defaults 0 0
 none /sys sysfs defaults 0 0
 EOF
+sed -e "s/$VRD/$VIRTUAL_ROOT_DEVICE/" /mnt/gentoo/etc/fstab.tmp > /mnt/gentoo/etc/fstab
+echo "output of fstab"
+cat /mnt/gentoo/etc/fstab
+sleep 10
 
 mkdir -p /mnt/gentoo/etc/local.d
 # echo "/etc/local.d/killall_nash-hotplug.start"
@@ -105,7 +113,7 @@ mkdir -p /mnt/gentoo/etc/portage
 CPUS=`cat /proc/cpuinfo |grep processor |wc -l`
 
 echo "/etc/portage/make.conf"
-cat <<'EOF'>/mnt/gentoo/etc/portage/make.conf
+cat <<'EOF'>/mnt/gentoo/etc/portage/make.conf.tmp
 # These settings were set by the catalyst build script that automatically
 # built this stage.
 # Please consult /usr/share/portage/config/make.conf.example for a more
@@ -118,10 +126,14 @@ CHOST="x86_64-pc-linux-gnu"
 # These are the USE flags that were used in addition to what is provided by the
 # profile used for building.
 USE="mmx sse sse2"
-MAKEOPTS="-j${CPUS}"
-EMERGE_DEFAULT_OPTS="--jobs=2 --load-average=3.0"
+MAKEOPTS="-j5"
+EMERGE_DEFAULT_OPTS="--jobs=$CPUNUM --load-average=3.0"
 EOF
+sed -e "s/$CPUNUM/$CPUS/" /etc/portage/make.conf.tmp > /etc/portage/make.conf
 
+echo "output of make.conf"
+cat /etc/portage/make.conf
+sleep 10
 echo "/etc/resolv.conf"
 cp -L /etc/resolv.conf /mnt/gentoo/etc/resolv.conf
 
@@ -171,7 +183,7 @@ echo "/tmp/build.sh"
 
 cat <<'EOF'>/mnt/gentoo/tmp/build.sh
 #!/bin/bash
-
+export
 env-update
 source /etc/profile
 
@@ -186,7 +198,7 @@ emerge --update --deep --with-bdeps=y --newuse @world
 cd /usr/src/linux
 mv /tmp/.config ./.config
 yes "" | make oldconfig
-make -j$CPUS && make -j$CPUS modules_install
+make -j5 && make -j5 modules_install
 cp -L arch/x86_64/boot/bzImage /boot/bzImage
 
 groupadd sudo
@@ -203,7 +215,7 @@ rc-update add lvm boot
 rc-update add mdraid boot
 
 mv /etc/portage/make.conf /etc/portage/make.conf.bkup
-sed "s/MAKEOPTS=\"-j.*\"/MAKEOPTS=\"-j2\"/g" /etc/portage/make.conf.bkup > /etc/portage/make.conf
+sed "s/MAKEOPTS=\"-j.*\"/MAKEOPTS=\"-j5\"/g" /etc/portage/make.conf.bkup > /etc/portage/make.conf
 rm /etc/portage/make.conf.bkup
 
 EOF
