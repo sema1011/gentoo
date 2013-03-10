@@ -17,7 +17,7 @@
 # limitations under the License.
 #-------------------------------------------------------------------------------
 
-VOLUME=/dev/sda
+VOLUME=/dev/sda1
 TMPDIR=/mnt/gentoo/tmp
 VIRTUAL_ROOT_DEVICE=/dev/sda1
 
