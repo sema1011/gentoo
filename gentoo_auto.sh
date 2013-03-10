@@ -31,10 +31,10 @@ mount $VOLUME /mnt/gentoo
 mkdir -p $TMPDIR
 cd $TMPDIR
 echo "Download stage3"
-LATEST=`curl --silent http://gentoo.mirrors.pair.com/releases/amd64/autobuilds/latest-stage3-amd64.txt | grep stage3-amd64`
-curl -O http://gentoo.mirrors.pair.com/releases/amd64/autobuilds/$LATEST
+LATEST=`curl --silent http://mirror.iawnet.sandia.gov/gentoo/releases/amd64/autobuilds/latest-stage3-amd64.txt | grep stage3-amd64`
+curl -O http://mirror.iawnet.sandia.gov/gentoo/releases/amd64/autobuilds/$LATEST
 echo "Download portage"
-curl -O http://gentoo.mirrors.pair.com/snapshots/portage-latest.tar.bz2
+curl -O http://mirror.iawnet.sandia.gov/gentoo/releases/snapshots/current/portage-latest.tar.bz2
 echo "Unpack stage3"
 tar -xjpf /tmp/stage3-*.tar.bz2 -C /mnt/gentoo
 echo "Unpack portage"
