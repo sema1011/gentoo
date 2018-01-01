@@ -70,43 +70,6 @@ cat /mnt/gentoo/etc/fstab
 sleep 10
 
 mkdir -p /mnt/gentoo/etc/local.d
-# echo "/etc/local.d/killall_nash-hotplug.start"
-# cat <<'EOF'>/mnt/gentoo/etc/local.d/killall_nash-hotplug.start
-# # /etc/local.d/killall_nash-hotplug.start
-
-# killall nash-hotplug
-# EOF
-# chmod 755 /mnt/gentoo/etc/local.d/killall_nash-hotplug.start
-
-# echo "/etc/local.d/public-keys.start"
-# cat <<'EOF'>/mnt/gentoo/etc/local.d/public-keys.start
-# # /etc/local.d/public-keys.start
-
-# [ ! -e /home/ec2-user ] && cp -r /etc/skel /home/ec2-user && chown -R ec2-user /home/ec2-user && chgrp -R ec2-user /home/ec2-user
-# if [ ! -d /home/ec2-user/.ssh ] ; then
-# mkdir -p /home/ec2-user/.ssh
-# chmod 700 /home/ec2-user/.ssh
-# chown ec2-user /home/ec2-user/.ssh
-# chgrp ec2-user /home/ec2-user/.ssh
-# fi
-# curl http://169.254.169.254/latest/meta-data/public-keys/0/openssh-key > /tmp/my-key
-# if [ $? -eq 0 ] ; then
-# cat /tmp/my-key >> /home/ec2-user/.ssh/authorized_keys
-# chmod 600 /home/ec2-user/.ssh/authorized_keys
-# chown ec2-user /home/ec2-user/.ssh/authorized_keys
-# chgrp ec2-user /home/ec2-user/.ssh/authorized_keys
-# rm /tmp/my-key
-# fi
-# EOF
-# chmod 755 /mnt/gentoo/etc/local.d/public-keys.start
-
-# echo "/etc/local.d/public-keys.stop"
-# cat <<'EOF'>/mnt/gentoo/etc/local.d/public-keys.stop
-# # /etc/local.d/public-keys.stop
-
-# rm -f /home/ec2-user/.ssh/authorized_keys
-# EOF
-# chmod 755 /mnt/gentoo/etc/local.d/public-keys.stop
 
 mkdir -p /mnt/gentoo/etc/portage
 
@@ -126,7 +89,7 @@ CHOST="x86_64-pc-linux-gnu"
 # These are the USE flags that were used in addition to what is provided by the
 # profile used for building.
 USE="mmx sse sse2"
-MAKEOPTS="-j5"
+MAKEOPTS="-j3"
 EMERGE_DEFAULT_OPTS="--jobs=$CPUNUM --load-average=3.0"
 EOF
 sed -e "s/$CPUNUM/$CPUS/" /etc/portage/make.conf.tmp > /etc/portage/make.conf
@@ -158,12 +121,10 @@ mkdir -p /mnt/gentoo/var/lib/portage
 echo "/var/lib/portage/world"
 cat <<'EOF'>/mnt/gentoo/var/lib/portage/world
 app-admin/logrotate
-app-admin/mcelog
 app-admin/sudo
 app-admin/syslog-ng
 app-arch/unzip
 app-editors/nano
-app-editors/vim
 app-misc/screen
 app-portage/eix
 app-portage/gentoolkit
@@ -171,10 +132,7 @@ dev-vcs/git
 net-misc/curl
 net-misc/dhcpcd
 net-misc/ntp
-sys-fs/lvm2
-sys-fs/mdadm
 sys-kernel/gentoo-sources
-sys-process/atop
 sys-process/fcron
 sys-process/htop
 EOF
@@ -198,24 +156,21 @@ emerge --update --deep --with-bdeps=y --newuse @world
 cd /usr/src/linux
 mv /tmp/.config ./.config
 yes "" | make oldconfig
-make -j5 && make -j5 modules_install
+make -j3 && make -j3 modules_install
 cp -L arch/x86_64/boot/bzImage /boot/bzImage
 
 groupadd sudo
-useradd -r -m -s /bin/bash ec2-user
+useradd -r -m -s /bin/bash gentoo
 
 ln -s /etc/init.d/net.lo /etc/init.d/net.eth0
 
 rc-update add net.eth0 default
-rc-update add sshd default
 rc-update add syslog-ng default
 rc-update add fcron default
 rc-update add ntpd default
-rc-update add lvm boot
-rc-update add mdraid boot
 
 mv /etc/portage/make.conf /etc/portage/make.conf.bkup
-sed "s/MAKEOPTS=\"-j.*\"/MAKEOPTS=\"-j5\"/g" /etc/portage/make.conf.bkup > /etc/portage/make.conf
+sed "s/MAKEOPTS=\"-j.*\"/MAKEOPTS=\"-j3\"/g" /etc/portage/make.conf.bkup > /etc/portage/make.conf
 rm /etc/portage/make.conf.bkup
 
 EOF
